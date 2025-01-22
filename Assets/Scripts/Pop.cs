@@ -38,7 +38,7 @@ public class NewBehaviourScript : MonoBehaviour
                 direction.Normalize();
 
                 // Aplicar fuerza de explosión
-                if (rb.transform.position.y < transform.position.y +0.5)
+                if (rb.transform.position.y < transform.position.y +0.2)
                 {
                     rb.AddForce(direction * explosionForce * 10f);
                 }
