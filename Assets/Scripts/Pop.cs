@@ -17,7 +17,7 @@ public class NewBehaviourScript : MonoBehaviour
         //Invoke(nameof(Explode), countdown);
     }
 
-    void Explode()
+    public void Explode()
     {
         // Genera un efecto visual si está configurado
         /**if (explosionEffect != null)

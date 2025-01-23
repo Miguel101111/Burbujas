@@ -9,7 +9,7 @@ public class Mov : MonoBehaviour
     public bool enSuelo = true;
     public Vector2 Salto;
     public LayerMask Suelo;
-    public float LongRayCas = 0.55f;
+    public float LongRayCas = 0.51f;
     public float anchoBoxCast = 1.0f;  
     public Transform puntoDisparo; // El punto desde donde se lanzan las bombas
     public float fuerzaLanzamiento = 5f; // Fuerza con la que se lanzará la bomba
@@ -19,6 +19,7 @@ public class Mov : MonoBehaviour
     public float desaceleracion = 0.5f;   // Factor para desacelerar la bomba
     public LayerMask capaJugador;         // Capa del jugador para ignorar colisiones
     bool powerup = false;
+    GameObject bomba = null;
     // Start is called before the first frame update
     void Start()
     {
@@ -40,7 +41,7 @@ public class Mov : MonoBehaviour
             LongRayCas,                        // Longitud del BoxCast
             Suelo                              // Capas detectadas
         );
-        if (Input.GetMouseButtonDown(0) && powerup ) // Botón izquierdo del mouse
+        if (Input.GetMouseButtonDown(0) && powerup && bomba == null ) // Botón izquierdo del mouse
         {
             LanzarBomba();
         }
@@ -82,7 +83,7 @@ public class Mov : MonoBehaviour
         Vector2 direccion = (posicionMouse - puntoDisparo.position).normalized;
 
         // Instanciar la bomba
-        GameObject bomba = Instantiate(bombaPrefab, puntoDisparo.position, Quaternion.identity);
+        bomba = Instantiate(bombaPrefab, puntoDisparo.position, Quaternion.identity);
 
         // Aplicar fuerza inicial
         Rigidbody2D rb = bomba.GetComponent<Rigidbody2D>();
@@ -126,5 +127,14 @@ public class Mov : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(0.2f);
         bPuedeContro = true;
+    }
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.tag == "Muerte" )
+        {
+            Debug.Log("muerto");
+            Destroy(this.gameObject);
+        }
+   
     }
 }

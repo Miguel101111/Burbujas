@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class BombaDesacelerar : MonoBehaviour
@@ -10,6 +11,7 @@ public class BombaDesacelerar : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        Invoke(nameof(Explode), 3f);
     }
 
     void FixedUpdate()
@@ -28,5 +30,10 @@ public class BombaDesacelerar : MonoBehaviour
                 rb.gravityScale = 0f;
             }
         }
+    }
+    void Explode()
+    {
+        NewBehaviourScript Popscript = this.GetComponent<NewBehaviourScript>();
+        Popscript.Explode();
     }
 }
