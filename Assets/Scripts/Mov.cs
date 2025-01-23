@@ -9,11 +9,16 @@ public class Mov : MonoBehaviour
     public bool enSuelo = true;
     public Vector2 Salto;
     public LayerMask Suelo;
-    public float LongRayCas = 0.6f;
-    public float anchoBoxCast = 1.0f;
-    public GameObject burbujaPrefab;  // El prefab de la bomba
+    public float LongRayCas = 0.55f;
+    public float anchoBoxCast = 1.0f;  
     public Transform puntoDisparo; // El punto desde donde se lanzan las bombas
     public float fuerzaLanzamiento = 5f; // Fuerza con la que se lanzará la bomba
+    public bool bPuedeContro =true;
+    public GameObject bombaPrefab;        // Prefab de la bomba
+    public float tiempoIgnorarJugador = 0.5f; // Tiempo para ignorar colisiones con el jugador
+    public float desaceleracion = 0.5f;   // Factor para desacelerar la bomba
+    public LayerMask capaJugador;         // Capa del jugador para ignorar colisiones
+    bool powerup = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -35,41 +40,91 @@ public class Mov : MonoBehaviour
             LongRayCas,                        // Longitud del BoxCast
             Suelo                              // Capas detectadas
         );
-        if (Input.GetKeyDown(KeyCode.Space)) // Cambia "Space" por la tecla que desees
+        if (Input.GetMouseButtonDown(0) && powerup ) // Botón izquierdo del mouse
         {
             LanzarBomba();
         }
+
         enSuelo = hit.collider != null;
-        if (Input.GetKeyDown(KeyCode.W) && enSuelo)
+        if (Input.GetKeyDown(KeyCode.W) && enSuelo && bPuedeContro) 
         {
-            rb.AddForce(Salto, ForceMode2D.Impulse);
+            rb.AddForce(Salto, ForceMode2D.Impulse );
+        }
+        if (Input.GetKey(KeyCode.D)&& !enSuelo && bPuedeContro)
+        {
+            rb.velocity = new Vector2(3, rb.velocity.y); // Velocidad constante en X
+        }
+        else if (Input.GetKey(KeyCode.A) && !enSuelo && bPuedeContro)
+        {
+            rb.velocity = new Vector2(-3, rb.velocity.y); // Velocidad constante en X
         }
         // Velocidad constante hacia la derecha mientras se mantiene presionada la tecla 'D'
-        if (Input.GetKey(KeyCode.D))
+        else if (Input.GetKey(KeyCode.D) && enSuelo && bPuedeContro)
         {
             rb.velocity = new Vector2(5, rb.velocity.y); // Velocidad constante en X
         }
-        else if (Input.GetKey(KeyCode.A))
+        else if (Input.GetKey(KeyCode.A) && enSuelo && bPuedeContro)
         {
             rb.velocity = new Vector2(-5, rb.velocity.y); // Velocidad constante en X
         }
         else
         {
-            rb.velocity = new Vector2(0, rb.velocity.y); // Detiene el movimiento en X cuando no se presiona 'D'
+            rb.velocity = new Vector2(0, rb.velocity.y ); // Detiene el movimiento en X cuando no se presiona 'D'
         }
     }
     void LanzarBomba()
     {
-        // Instanciar la bomba en el punto de disparo
-        GameObject bomba = Instantiate(burbujaPrefab, puntoDisparo.position, Quaternion.identity);
+        // Obtener la posición del mouse en el mundo
+        Vector3 posicionMouse = Camera.main.ScreenToWorldPoint( Input.mousePosition );
+        posicionMouse.z = 0; // Asegurarse de que la coordenada Z sea 0 (2D)
 
-        // Agregar fuerza a la bomba
+        // Calcular la dirección hacia el mouse
+        Vector2 direccion = (posicionMouse - puntoDisparo.position).normalized;
+
+        // Instanciar la bomba
+        GameObject bomba = Instantiate(bombaPrefab, puntoDisparo.position, Quaternion.identity);
+
+        // Aplicar fuerza inicial
         Rigidbody2D rb = bomba.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
-            // Aplica una fuerza hacia adelante (en la dirección del personaje)
-            rb.AddForce(transform.right * fuerzaLanzamiento, ForceMode2D.Impulse);
+            rb.AddForce(direccion * fuerzaLanzamiento, ForceMode2D.Impulse);
+
+            // Ignorar colisiones con el jugador temporalmente
+            Physics2D.IgnoreLayerCollision(bomba.layer, capaJugador, true);
+            StartCoroutine(HabilitarColisiones(rb, bomba));
         }
 
+        // Configurar desaceleración
+        BombaDesacelerar desaceleracionScript = bomba.AddComponent<BombaDesacelerar>();
+        desaceleracionScript.desaceleracion = desaceleracion;
+    }
+
+    private IEnumerator HabilitarColisiones(Rigidbody2D rb, GameObject bomba)
+    {
+        yield return new WaitForSeconds(tiempoIgnorarJugador);
+
+        // Dejar de ignorar colisiones con el jugador
+        Physics2D.IgnoreLayerCollision(rb.gameObject.layer, capaJugador, false);
+        bomba.GetComponent<Collider2D>().excludeLayers = 0;
+    }
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Burbuja")
+        {
+            bPuedeContro = false;
+            StartCoroutine(wait());
+            Debug.Log("Pierda de control");
+        }
+        if (collision.gameObject.name == "powerup")
+        {
+            powerup = true;
+        }
+            
+    }
+    IEnumerator wait()
+    {
+        yield return new WaitForSecondsRealtime(0.2f);
+        bPuedeContro = true;
     }
 }

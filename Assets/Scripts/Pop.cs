@@ -5,6 +5,7 @@ using UnityEngine;
 public class NewBehaviourScript : MonoBehaviour
 { 
     public float explosionForce = 500f;     // Fuerza de la explosión
+    public float explosionForceLateral = 500f;
     public float explosionRadius = 5f;     // Radio de la explosión
     public LayerMask affectedLayers;       // Capas afectadas por la explosión
     public float countdown = 3f;           // Tiempo antes de explotar
@@ -38,12 +39,14 @@ public class NewBehaviourScript : MonoBehaviour
                 direction.Normalize();
 
                 // Aplicar fuerza de explosión
-                if (rb.transform.position.y < transform.position.y +0.2)
+                if (rb.transform.position.y < transform.position.y +0.5 && rb.transform.position.y > transform.position.y -0.5)
                 {
-                    rb.AddForce(direction * explosionForce * 10f);
+                    rb.AddForce(direction * explosionForceLateral);
+                    Debug.Log("Lateral");
                 }
                 else
                 {
+   
                     rb.AddForce(direction * explosionForce);
                 }
             }
