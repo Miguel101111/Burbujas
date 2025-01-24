@@ -19,9 +19,19 @@ public class Destroy : MonoBehaviour
     {
         if (collision.gameObject.name.Equals("Personaje"))
         {
-            Destroy(this.gameObject);
-
+            StartCoroutine(destruir());
         }
 
+    }
+
+    IEnumerator destruir()
+    {
+        GetComponent<AudioSource>().Play();
+        GetComponent<SpriteRenderer>().enabled = false;
+        GetComponent<Collider2D>().enabled = false;
+
+        yield return new WaitForSecondsRealtime(0.2f);
+
+        Destroy(this.gameObject);
     }
 }

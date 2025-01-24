@@ -6,6 +6,9 @@ using UnityEngine;
 public class Mov : MonoBehaviour
 {
     Rigidbody2D rb;
+    Animator animator;
+    SpriteRenderer spriteRenderer;
+    public bool bStart =false;
     public bool enSuelo = true;
     public Vector2 Salto;
     public LayerMask Suelo;
@@ -20,11 +23,15 @@ public class Mov : MonoBehaviour
     public LayerMask capaJugador;         // Capa del jugador para ignorar colisiones
     bool powerup = false;
     GameObject bomba = null;
+    public MainMenu retryMenuManager;
+    public Victoria victoria;
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     // Update is called once per frame
@@ -41,36 +48,46 @@ public class Mov : MonoBehaviour
             LongRayCas,                        // Longitud del BoxCast
             Suelo                              // Capas detectadas
         );
-        if (Input.GetMouseButtonDown(0) && powerup && bomba == null ) // Botón izquierdo del mouse
-        {
-            LanzarBomba();
-        }
 
-        enSuelo = hit.collider != null;
-        if (Input.GetKeyDown(KeyCode.W) && enSuelo && bPuedeContro) 
+        if (bStart)
         {
-            rb.AddForce(Salto, ForceMode2D.Impulse );
-        }
-        if (Input.GetKey(KeyCode.D)&& !enSuelo && bPuedeContro)
-        {
-            rb.velocity = new Vector2(3, rb.velocity.y); // Velocidad constante en X
-        }
-        else if (Input.GetKey(KeyCode.A) && !enSuelo && bPuedeContro)
-        {
-            rb.velocity = new Vector2(-3, rb.velocity.y); // Velocidad constante en X
-        }
-        // Velocidad constante hacia la derecha mientras se mantiene presionada la tecla 'D'
-        else if (Input.GetKey(KeyCode.D) && enSuelo && bPuedeContro)
-        {
-            rb.velocity = new Vector2(5, rb.velocity.y); // Velocidad constante en X
-        }
-        else if (Input.GetKey(KeyCode.A) && enSuelo && bPuedeContro)
-        {
-            rb.velocity = new Vector2(-5, rb.velocity.y); // Velocidad constante en X
-        }
-        else
-        {
-            rb.velocity = new Vector2(0, rb.velocity.y ); // Detiene el movimiento en X cuando no se presiona 'D'
+            if (Input.GetMouseButtonDown(0) && powerup && bomba == null) // Botón izquierdo del mouse
+            {
+                LanzarBomba();
+            }
+
+            enSuelo = hit.collider != null;
+            if (Input.GetKeyDown(KeyCode.W) && enSuelo && bPuedeContro)
+            {
+                rb.AddForce(Salto, ForceMode2D.Impulse);
+            }
+            if (Input.GetKey(KeyCode.D) && !enSuelo && bPuedeContro)
+            {
+                rb.velocity = new Vector2(3, rb.velocity.y); // Velocidad constante en X
+            }
+            else if (Input.GetKey(KeyCode.A) && !enSuelo && bPuedeContro)
+            {
+                rb.velocity = new Vector2(-3, rb.velocity.y); // Velocidad constante en X
+            }
+
+            // Velocidad constante hacia la derecha mientras se mantiene presionada la tecla 'D'
+            else if (Input.GetKey(KeyCode.D) && enSuelo && bPuedeContro)
+            {
+                animator.SetBool("Walk", true);
+                spriteRenderer.flipX = false;
+                rb.velocity = new Vector2(5, rb.velocity.y); // Velocidad constante en X
+            }
+            else if (Input.GetKey(KeyCode.A) && enSuelo && bPuedeContro)
+            {
+                animator.SetBool("Walk", true);
+                spriteRenderer.flipX = true;
+                rb.velocity = new Vector2(-5, rb.velocity.y); // Velocidad constante en X
+            }
+            else
+            {
+                animator.SetBool("Walk", false);
+                rb.velocity = new Vector2(0, rb.velocity.y); // Detiene el movimiento en X cuando no se presiona 'D'
+            }
         }
     }
     void LanzarBomba()
@@ -117,11 +134,16 @@ public class Mov : MonoBehaviour
             StartCoroutine(wait());
             Debug.Log("Pierda de control");
         }
-        if (collision.gameObject.name == "powerup")
+        if (collision.gameObject.tag == "powerup")
         {
+            Debug.Log("aaaaaaaaaa");
             powerup = true;
         }
-            
+        if (collision.gameObject.tag=="Victoria")
+        {
+            bStart=false;
+            victoria.ShowRetryMenu();
+        }
     }
     IEnumerator wait()
     {
@@ -133,8 +155,15 @@ public class Mov : MonoBehaviour
         if (other.gameObject.tag == "Muerte" )
         {
             Debug.Log("muerto");
-            Destroy(this.gameObject);
+            DestroyPlayer();
+
+
         }
    
+    }
+    void DestroyPlayer()
+    {
+        Destroy(this.gameObject);
+        retryMenuManager.ShowRetryMenu();
     }
 }
