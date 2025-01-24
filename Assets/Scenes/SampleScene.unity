@@ -782,6 +782,22 @@ PrefabInstance:
       propertyPath: Player
       value: 
       objectReference: {fileID: 544767745}
+    - target: {fileID: 4721872140833540748, guid: 253fa4d86f5957744bee658429b8dc24, type: 3}
+      propertyPath: m_text
+      value: Burbujas explosivas
+      objectReference: {fileID: 0}
+    - target: {fileID: 4721872140833540748, guid: 253fa4d86f5957744bee658429b8dc24, type: 3}
+      propertyPath: m_fontSize
+      value: 138.85
+      objectReference: {fileID: 0}
+    - target: {fileID: 4721872140833540748, guid: 253fa4d86f5957744bee658429b8dc24, type: 3}
+      propertyPath: m_fontSizeMax
+      value: 192.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4721872140833540748, guid: 253fa4d86f5957744bee658429b8dc24, type: 3}
+      propertyPath: m_enableAutoSizing
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5300934619840580883, guid: 253fa4d86f5957744bee658429b8dc24, type: 3}
       propertyPath: m_Name
       value: Canvas (1)
