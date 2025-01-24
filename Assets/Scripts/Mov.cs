@@ -9,7 +9,7 @@ public class Mov : MonoBehaviour
     Animator animator;
     SpriteRenderer spriteRenderer;
     public bool bStart =false;
-    public bool enSuelo = true;
+    public bool enSuelo = false;
     public Vector2 Salto;
     public LayerMask Suelo;
     public float LongRayCas = 0.51f;
@@ -57,6 +57,7 @@ public class Mov : MonoBehaviour
             }
 
             enSuelo = hit.collider != null;
+
             if (Input.GetKeyDown(KeyCode.W) && enSuelo && bPuedeContro)
             {
                 rb.AddForce(Salto, ForceMode2D.Impulse);
