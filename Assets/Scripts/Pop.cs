@@ -31,6 +31,7 @@ public class NewBehaviourScript : MonoBehaviour
 
         foreach (Collider2D obj in objects)
         {
+            GetComponent<AudioSource>().Play();
             Rigidbody2D rb = obj.GetComponent<Rigidbody2D>();
             if (rb != null)
             {
